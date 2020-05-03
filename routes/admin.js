@@ -9,10 +9,10 @@ router.get('/add-product', adminController.getAddProduct);
 
 router.post('/add-product', adminController.postAddProduct);
 //'products/:productid' şeklinde olabilir
-router.get('/products/:productid',adminController.getEditProduct);
-//'products' olabilir
+ router.get('/products/:productid',adminController.getEditProduct);
+// //'products' olabilir
 router.post('/products',adminController.postEditProduct);
 
-router.post('/delete-product', adminController.postDeleteProduct);
+ router.post('/delete-product', adminController.postDeleteProduct);
 
 exports.routes = router;

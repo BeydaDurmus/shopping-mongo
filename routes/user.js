@@ -8,12 +8,12 @@ router.get('/products', shopController.getProducts);
 
 router.get('/products/:productid',shopController.getProduct);
 
-router.get('/categories/:categoryid',shopController.getProductByCategoryId);
+// router.get('/categories/:categoryid',shopController.getProductByCategoryId);
 
-router.get('/details', shopController.getProductDetails);
+// router.get('/details', shopController.getProductDetails);
 
-router.get('/carts', shopController.getCarts);
+// router.get('/carts', shopController.getCarts);
 
-router.get('/orders', shopController.getOrders);
+// router.get('/orders', shopController.getOrders);
 
 module.exports = router;

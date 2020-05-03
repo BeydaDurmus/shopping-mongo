@@ -9,21 +9,16 @@ app.set('views', './views');
 
 const admin = require('./routes/admin');
 const userRoutes = require('./routes/user');
+const errorController = require('./controllers/errors');
 
+const mongoConnect = require('./database').mongoConnect;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // routes
 app.use('/admin', admin.routes);
 app.use(userRoutes);
-
-
-
-app.use((req, res) => {
-    res.status(404).render('404', { title: 'Page Not Found' });
-});
-
-
-app.listen(3001, () => {
-    console.log('listening on port 3001');
-});
+app.use(errorController.get404Page);
+mongoConnect(() =>{
+    app.listen(3001);
+})

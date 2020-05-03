@@ -1,56 +1,68 @@
-const products = [
-    { id:"123456",name:'Samsung S6',price:'2000',imageUrl:'1.jpg',description:'Good',categoryid:"1"},
-    { id:"123457",name:'Huawai Y6',price:'5000',imageUrl:'2.jpg',description:'Excellent',categoryid:"1"},
-    { id:"123458",name:'Huawai Y7',price:'3000',imageUrl:'huawei-y6-2019-32-gb-mavi-dist-cep-telefonu_288366.jpg',description:'Cool',categoryid:"1"},
-    { id:"123459",name:'iPhone X',price:'7000',imageUrl:'iphone_screen.png',description:'Perfect',categoryid:"1"},
-    { id:"123460",name:'Bilgisayar',price:'2000',imageUrl:'1.jpg',description:'Good',categoryid:"2"},
-    { id:"123461",name:'Buzdolabı',price:'5000',imageUrl:'2.jpg',description:'Excellent',categoryid:"3"}
-];
-
+const getDb = require('../database').getdb;
+const mongodb= require('mongodb');
 module.exports = class Product{
-
-    constructor(name,price,imageUrl,description,categoryid){
-        this.id=(Math.floor(Math.random()*99999)+1).toString();
+    constructor(name,price,imageUrl,description,id){
+        //this.id=(Math.floor(Math.random()*99999)+1).toString();
         this.name = name;
         this.price = price;
-        this.description = description;
         this.imageUrl = imageUrl;
-        this.categoryid = categoryid;
+        this.description = description;
+        this._id= id ? new mongodb.ObjectID(id) : null; //id varsa-> mongoDbden atansın id yoksa-> null değer gelsin ki yeni ürün eklensin      
     }
 
     saveProduct() {
-        products.push(this);
+        let db = getDb(); //const sabiti olarak değil ,birden fazla işlem olduğu için let kullanıldı.
+        if(this._id)
+        {
+            db=db.collection('products')
+            .updateOne({_id:this._id},{$set:this});//tüm fieldsleri günceller
+
+        }
+        else
+        {
+            db=db.collection('products')
+            .insertOne(this)
+            
+        }
+         
+        return db
+        .then(result => {
+             console.log(result);
+        })
+        .catch(err=> {console.log(err)});
+    }
+    
+    static getAll() {
+        const db = getDb();
+        return db.collection('products')
+            .find()
+            .project({name:1,price:1,imageUrl:1})
+            .toArray()
+            .then(products => {
+                return products;
+            })
+            .catch(err => console.log(err));
     }
 
-    static getAll()
-    {
-        return products;
+    static getById(productid) {
+        const db = getDb();
+        return db.collection('products').
+        findOne({ _id: new mongodb.ObjectID(productid) })
+        .then(product => {
+            return product;
+        }).catch(err => {
+            console.log(err);
+        });
     }
 
-    static getById(id) {
-        const  product = products.find(i=>i.id === id);
-        return  product;
-    }
-
-    static getProductsByCategoryId(categoryid)
-    {
-        return products.filter(i=>i.categoryid === categoryid);
-    }
-
-    static Update(product)
-    {
-        const index = products.findIndex(i=>i.id === product.id);
-
-        products[index].name=product.name;
-        products[index].price=product.price;
-        products[index].imageUrl=product.imageUrl;
-        products[index].description=product.description;
-        products[index].categoryid=product.categoryid;
-    }
-
-    static deleteById(id)
-    {
-        const index = products.findIndex(i=>i.id === id);
-        products.splice(index,1);
+    static deleteById(productid){
+        const db = getDb();
+        return db.collection('products')
+                .deleteOne({_id:new mongodb.ObjectID(productid)})
+                .then(() => {
+                    console.log('deleted');
+                })
+                .catch ((err) => { console.log(err)
+                });
     }
 }
